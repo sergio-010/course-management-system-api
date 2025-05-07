@@ -4,9 +4,6 @@ import { IsOptional, IsPositive, IsString } from 'class-validator';
 
 export class PaginationDto {
   @IsOptional()
-  courseId?: string;
-
-  @IsOptional()
   @IsPositive()
   @Type(() => Number)
   limit?: number;

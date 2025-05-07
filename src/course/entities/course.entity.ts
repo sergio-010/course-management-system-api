@@ -5,6 +5,8 @@ import {
   BeforeInsert,
   BeforeUpdate,
   OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 
 import { CourseStudent } from './course-student.entity';
@@ -27,6 +29,12 @@ export class Course {
 
   @Column({ type: 'int', default: 0, nullable: false })
   maxStudents: number;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 
   @OneToMany(() => CourseStudent, (cs) => cs.course)
   courseStudents: CourseStudent[];

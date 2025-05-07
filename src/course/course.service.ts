@@ -87,20 +87,28 @@ export class CourseService {
   }
 
   async addStudentToCourse(courseId: string, studentId: string) {
-    const course = await this.courseRepository.findOneBy({ id: courseId });
+    const course = await this.courseRepository.findOne({
+      where: { id: courseId },
+      relations: { courseStudents: true },
+    });
     const student = await this.studentRepository.findOneBy({ id: studentId });
 
-    if (!course || !student) {
-      throw new NotFoundException('Curso o estudiante no encontrado');
-    }
+    if (!course) throw new NotFoundException('Curso no encontrado');
+    if (!student) throw new NotFoundException('Estudiante no encontrado');
 
     const exists = await this.courseStudentRepository.findOne({
       where: { course: { id: courseId }, student: { id: studentId } },
     });
 
-    if (exists) {
+    if (exists)
       throw new BadRequestException(
         'El estudiante ya está inscrito en este curso',
+      );
+
+    const currentCount = course.courseStudents.length;
+    if (currentCount >= course.maxStudents) {
+      throw new BadRequestException(
+        'El curso ha alcanzado el número máximo de estudiantes',
       );
     }
 
@@ -114,31 +122,22 @@ export class CourseService {
     return { ok: true, message: 'Estudiante agregado al curso con éxito' };
   }
 
-  async getStudentsFromCourse(pagination: PaginationDto) {
-    console.log(pagination);
-    const { courseId, limit = 10, offset = 0 } = pagination;
+  async getStudentsFromCourse(courseId: string) {
+    const course = await this.findOne(courseId);
 
-    const [relations, total] = await this.courseStudentRepository.findAndCount({
+    if (!course) throw new NotFoundException('Curso no encontrado');
+
+    const [students, total] = await this.courseStudentRepository.findAndCount({
       where: {
         course: { id: courseId },
       },
-      relations: ['student'],
-      take: limit,
-      skip: offset,
-      order: { id: 'ASC' },
+      relations: {
+        student: true,
+      },
+      order: { createdAt: 'ASC' },
     });
 
-    const course = await this.courseRepository.findOneBy({ id: courseId });
-    if (!course) throw new NotFoundException('Curso no encontrado');
-
-    const students = relations.map((rel) => rel.student);
-
-    return {
-      courseId: course.id,
-      courseName: course.name,
-      total,
-      students,
-    };
+    return { course, students, total };
   }
 
   async removeStudentFromCourse(courseId: string, studentId: string) {
