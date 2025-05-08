@@ -32,8 +32,8 @@ export class CourseController {
   }
 
   @Get('students')
-  getStudentsFromCourse(@Query() pagination: PaginationDto) {
-    return this.courseService.getStudentsFromCourse(pagination);
+  getStudentsFromCourse(@Query('courseId', ParseUUIDPipe) courseId: string) {
+    return this.courseService.getStudentsFromCourse(courseId);
   }
 
   @Get(':id')
