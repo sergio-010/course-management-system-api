@@ -40,7 +40,6 @@ export class StudentService {
       take: limit,
       skip: offset,
       order: { id: 'ASC' },
-      // relations: {},
     };
 
     const [students, total] =

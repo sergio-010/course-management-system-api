@@ -53,7 +53,17 @@ export class CourseService {
     const [courses, total] =
       await this.courseRepository.findAndCount(findOptions);
 
-    return { data: courses, total };
+    const coursesWithDiversity = await Promise.all(
+      courses.map(async (course) => {
+        const domainDiversity = await this.calculateDomainDiversity(course.id);
+        return {
+          ...course,
+          domainDiversity,
+        };
+      }),
+    );
+
+    return { data: coursesWithDiversity, total };
   }
 
   async findOne(id: string) {
@@ -131,13 +141,14 @@ export class CourseService {
       where: {
         course: { id: courseId },
       },
+      select: ['id'],
       relations: {
         student: true,
       },
       order: { createdAt: 'ASC' },
     });
 
-    return { course, students, total };
+    return { students, total };
   }
 
   async removeStudentFromCourse(courseId: string, studentId: string) {
@@ -155,5 +166,33 @@ export class CourseService {
     await this.courseStudentRepository.remove(relation);
 
     return { ok: true, message: 'Estudiante eliminado del curso' };
+  }
+
+  private async calculateDomainDiversity(courseId: string): Promise<number> {
+    const relations = await this.courseStudentRepository.find({
+      where: { course: { id: courseId } },
+      relations: ['student'],
+    });
+
+    const totalStudents = relations.length;
+
+    const uniqueDomains = new Set(
+      relations
+        .map((rel) => {
+          const email = rel.student.email;
+          if (email && email.includes('@')) {
+            return email.split('@')[1].toLowerCase();
+          }
+          return null;
+        })
+        .filter(Boolean),
+    );
+
+    const diversity =
+      totalStudents > 0
+        ? Math.round((uniqueDomains.size / totalStudents) * 100)
+        : 0;
+
+    return diversity;
   }
 }
