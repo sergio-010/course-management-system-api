@@ -11,6 +11,11 @@ async function bootstrap() {
 
   const PORT = configService.get('PORT') || 3000;
 
+  app.enableCors({
+    origin: ['http://localhost:5173'], // el frontend de Vite
+    credentials: true, // si usas cookies, autoriza también
+  });
+
   app.setGlobalPrefix('api');
 
   app.useGlobalPipes(

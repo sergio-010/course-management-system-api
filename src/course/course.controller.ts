@@ -59,11 +59,8 @@ export class CourseController {
     return this.courseService.addStudentToCourse(dto.courseId, dto.studentId);
   }
 
-  @Delete('students')
-  removeStudentFromCourse(
-    @Query('courseId', ParseUUIDPipe) courseId: string,
-    @Query('studentId', ParseUUIDPipe) studentId: string,
-  ) {
-    return this.courseService.removeStudentFromCourse(courseId, studentId);
+  @Delete('students/:id')
+  removeStudentFromCourse(@Param('id', ParseUUIDPipe) id: string) {
+    return this.courseService.removeStudentFromCourse(id);
   }
 }

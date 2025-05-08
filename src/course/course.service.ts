@@ -151,11 +151,10 @@ export class CourseService {
     return { students, total };
   }
 
-  async removeStudentFromCourse(courseId: string, studentId: string) {
+  async removeStudentFromCourse(id: string) {
     const relation = await this.courseStudentRepository.findOne({
       where: {
-        course: { id: courseId },
-        student: { id: studentId },
+        id,
       },
       relations: ['course', 'student'],
     });
