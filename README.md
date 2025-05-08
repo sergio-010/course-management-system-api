@@ -19,7 +19,7 @@ Construir una aplicación para gestionar un curso y sus estudiantes, permitiendo
 1. Clonar el repositorio:
 
    ```bash
-   git clone https://github.com/sergio-010/course-management-system-back.git
+   git clone https://github.com/sergio-010/course-management-system-api.git
    cd course-management-system-back
    Instalar dependencias:
    ```
@@ -43,4 +43,5 @@ Construir una aplicación para gestionar un curso y sus estudiantes, permitiendo
    ```bash
    npm run start:dev
    ```
+
 # course-management-system-api
